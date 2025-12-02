@@ -95,6 +95,8 @@ func spawnUi() {
 	window.CenterOnScreen()
 	window.RequestFocus()
 
+	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
+
 	var onDismiss = func() {
 		os.Exit(0)
 	}
@@ -106,9 +108,7 @@ func spawnUi() {
 		var onSubmit = func(input string) {
 			var existingWorkspace *hd.Workspace
 
-			specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
-
-			// Refuse to rename a normal workspace as special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
+			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
 			if specialRegexp.MatchString(input) {
 				return
 			}
@@ -146,10 +146,7 @@ func spawnUi() {
 		}
 
 		var onSubmit = func(input string) {
-			specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
-
-			// TODO: Check on this, I think my config has a dispatch to this?
-			// Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
+			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
 			if specialRegexp.MatchString(input) {
 				return
 			}

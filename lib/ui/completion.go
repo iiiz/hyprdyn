@@ -3,6 +3,7 @@ package hyprdyn_ui
 import (
 	"fmt"
 	"image/color"
+	"regexp"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
@@ -49,14 +50,19 @@ func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
 	}
 
 	if item.NewEntry {
-		// TODO: check if matching special regexp and make text color red.
+		specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
+
 		item.text.Text = fmt.Sprintf("+> %s", item.Label)
 		item.text.TextStyle = fyne.TextStyle{Bold: true}
 
-		if item.Highlight {
-			item.text.Color = color.RGBA{R: 110, G: 190, B: 255, A: 255}
+		if specialRegexp.MatchString(item.Label) {
+			item.text.Color = color.RGBA{R: 255, G: 90, B: 90, A: 255}
 		} else {
-			item.text.Color = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+			if item.Highlight {
+				item.text.Color = color.RGBA{R: 110, G: 190, B: 255, A: 255}
+			} else {
+				item.text.Color = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+			}
 		}
 
 		return item.text
