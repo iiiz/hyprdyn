@@ -16,6 +16,7 @@ type RuntimeFlags struct {
 	SelectMode *bool
 	SendMode   *bool
 	RenameMode *bool
+	PrimaryCmd *bool
 }
 
 func CaptureFlags() RuntimeFlags {
@@ -25,6 +26,7 @@ func CaptureFlags() RuntimeFlags {
 	flags.SelectMode = flag.Bool("select", false, "Select or create a workspace on current monitor.")
 	flags.SendMode = flag.Bool("send", false, "Send the current window to a workspace.")
 	flags.RenameMode = flag.Bool("rename", false, "Rename a workspace.")
+	flags.PrimaryCmd = flag.Bool("primary", false, "Go to, or spawn your primary workspace. See config:primaryName")
 
 	flag.Parse()
 
@@ -42,13 +44,17 @@ func CaptureFlags() RuntimeFlags {
 	if *flags.RenameMode == true {
 		flagCount++
 	}
-
-	if flagCount > 1 {
-		log.Fatal("Error: Flags 'select', 'send', 'rename' and 'defaults' cannot be combined.")
+	if *flags.PrimaryCmd == true {
+		flagCount++
 	}
 
+	if flagCount > 1 {
+		log.Fatal("Error: Flags 'select', 'send', 'rename', ... cannot be combined.")
+	} else if flagCount == 0 {
+		log.Fatal("Error: No flags specified.")
+	}
 	// if we have a flag assume ui mode
-	if flagCount == 1 && *flags.SetupMode != true {
+	if flagCount == 1 && *flags.SetupMode != true || *flags.PrimaryCmd != true {
 		flags.IsUiMode = true
 	}
 
