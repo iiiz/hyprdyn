@@ -8,7 +8,6 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
-	"github.com/charmbracelet/log"
 
 	hd "hyprdyn/lib"
 	ui "hyprdyn/lib/ui"
@@ -17,15 +16,12 @@ import (
 var config hd.Config
 var flags hd.RuntimeFlags
 var activeWindow hd.Window
-var workspaces []hd.Workspace
+var workspaces hd.WorkspaceList
 
 func init() {
 	if c := hd.ReadConfig(); c != nil {
 		config = *c
 	}
-
-	log.Info("Config:")
-	hd.PrettyPrint(config)
 
 	flags = hd.CaptureFlags()
 
@@ -37,15 +33,33 @@ func main() {
 	activeWindow = hd.GetActiveWindow()
 
 	if *flags.SetupMode == true {
-		wss := hd.GetAllWorkspaces(true)
-
 		for _, monitorConfig := range config.Monitors {
-			ws := wss.GetForegroundByMonitor(monitorConfig.Id)
+			ws := workspaces.GetForegroundByMonitor(monitorConfig.Id)
 
 			if ws != nil && monitorConfig.DefaultName != nil {
 				ws.Rename(*monitorConfig.DefaultName)
 			}
 		}
+
+		os.Exit(0)
+	}
+
+	if *flags.PrimaryCmd == true && config.PrimaryName != nil {
+		var existingWorkspace *hd.Workspace
+
+		for _, ws := range workspaces {
+			if ws.Name == *config.PrimaryName {
+				existingWorkspace = &ws
+			}
+		}
+
+		if existingWorkspace != nil {
+			existingWorkspace.FocusOnCurrentMonitor()
+		} else {
+			hd.SpawnWorkspace(*config.PrimaryName)
+		}
+
+		os.Exit(0)
 	}
 
 	if flags.IsUiMode {

@@ -14,6 +14,7 @@ type MonitorConfig struct {
 type Config struct {
 	Monitors     []MonitorConfig `json:"monitors,omitempty"`
 	AutoComplete []string        `json:"autoComplete,omitempty"`
+	PrimaryName  *string         `json:"primaryName,omitempty"`
 }
 
 func ReadConfig() *Config {
