@@ -14,20 +14,25 @@ type SelectorWidget struct {
 
 	TabCompleteListWidget *widget.List
 
-	onSubmit          func(i string)
-	onDismiss         func()
-	completionBinding binding.List[*CompletionItem]
-	completionList    CompletionList
-	tabSelectionIndex *int
-	dd                desktop.Driver
+	onSubmit             func(i string)
+	onDismiss            func()
+	completionBinding    binding.List[*CompletionItem]
+	completionList       CompletionList
+	tabSelectionIndex    *int
+	dedupedAutoComplete  []string
+	autoCompleteCombined bool
+	dd                   desktop.Driver
 }
 
-func NewSelectorWidget(workspaceNames []string, OnSubmit func(i string), OnResize func(y float32), OnDismiss func()) (*SelectorWidget, float32) {
+func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSubmit func(i string), OnResize func(y float32), OnDismiss func()) (*SelectorWidget, float32) {
 	selector := &SelectorWidget{}
 	selector.onSubmit = OnSubmit
 	selector.onDismiss = OnDismiss
 	selector.SetPlaceHolder("Workspace name")
 	selector.tabSelectionIndex = nil
+	selector.autoCompleteCombined = false
+
+	existingMap := make(map[string]bool)
 
 	if driver, ok := fyne.CurrentApp().Driver().(desktop.Driver); ok {
 		selector.dd = driver
@@ -39,6 +44,13 @@ func NewSelectorWidget(workspaceNames []string, OnSubmit func(i string), OnResiz
 
 	for _, name := range workspaceNames {
 		selector.completionList = append(selector.completionList, &CompletionItem{Label: name, Highlight: false})
+		existingMap[name] = true
+	}
+
+	for _, name := range autocompleteNames {
+		if _, exists := existingMap[name]; !exists {
+			selector.dedupedAutoComplete = append(selector.dedupedAutoComplete, name)
+		}
 	}
 
 	selector.completionBinding.Set(selector.completionList)
@@ -63,6 +75,23 @@ func NewSelectorWidget(workspaceNames []string, OnSubmit func(i string), OnResiz
 			for _, li := range selector.completionList {
 				li.Highlight = false
 			}
+		}
+
+		if !selector.autoCompleteCombined {
+			// search initiated, combine autocomplete defaults
+			for _, name := range selector.dedupedAutoComplete {
+				selector.completionList = append(selector.completionList, &CompletionItem{Label: name, Highlight: false})
+			}
+			selector.autoCompleteCombined = true
+		} else if len(input) == 0 {
+			// return to only current workspaces
+			selector.completionList = []*CompletionItem{}
+
+			for _, name := range workspaceNames {
+				selector.completionList = append(selector.completionList, &CompletionItem{Label: name, Highlight: false})
+			}
+
+			selector.autoCompleteCombined = false
 		}
 
 		nextList := selector.completionList.FuzzySort(input, true)

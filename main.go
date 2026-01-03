@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"os"
 	"regexp"
 
@@ -10,47 +9,25 @@ import (
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"github.com/charmbracelet/log"
-	"github.com/thiagokokada/hyprland-go"
 
 	hd "hyprdyn/lib"
 	ui "hyprdyn/lib/ui"
 )
 
-var isUiMode bool
-var selectMode *bool
-var sendMode *bool
-var renameMode *bool
-var activeWindow *hyprland.Window
+var config hd.Config
+var flags hd.RuntimeFlags
+var activeWindow hd.Window
 var workspaces []hd.Workspace
 
 func init() {
-	// TODO: check for a config / use config for styling and prefs?
-	// TODO: use cobra or pflag for better handling and mutually exclusive flags?
-	selectMode = flag.Bool("select", false, "Select or create a workspace on current monitor.")
-	sendMode = flag.Bool("send", false, "Send the current window to a workspace.")
-	renameMode = flag.Bool("rename", false, "Rename a workspace.")
-	flag.Parse()
-
-	flagCount := 0
-
-	if *selectMode == true {
-		flagCount++
-	}
-	if *sendMode == true {
-		flagCount++
-	}
-	if *renameMode == true {
-		flagCount++
+	if c := hd.ReadConfig(); c != nil {
+		config = *c
 	}
 
-	if flagCount > 1 {
-		log.Fatal("Error: Flags 'select', 'send' and 'rename' cannot be combined.")
-	}
+	log.Info("Config:")
+	hd.PrettyPrint(config)
 
-	// Running with a
-	if flagCount == 1 {
-		isUiMode = true
-	}
+	flags = hd.CaptureFlags()
 
 	hd.GetHyprClient()
 }
@@ -59,32 +36,42 @@ func main() {
 	workspaces = hd.GetAllWorkspaces(true)
 	activeWindow = hd.GetActiveWindow()
 
-	if isUiMode {
-		spawnUi()
-	} else {
-		focusedMonitor := hd.GetFocusedMonitor()
+	if *flags.SetupMode == true {
+		wss := hd.GetAllWorkspaces(true)
 
-		var focused string
-		var active []string
-		var background []string
+		for _, monitorConfig := range config.Monitors {
+			ws := wss.GetForegroundByMonitor(monitorConfig.Id)
 
-		for _, ws := range workspaces {
-			hd.PrettyPrint(ws)
-			log.Info("Ws", "type", ws.WorkspaceType)
-
-			if ws.LastWindow == "0x0" {
-				background = append(background, ws.Name)
-			} else {
-
-				if ws.MonitorID == focusedMonitor.Id {
-					focused = ws.Name
-				} else {
-					active = append(active, ws.Name)
-				}
+			if ws != nil && monitorConfig.DefaultName != nil {
+				ws.Rename(*monitorConfig.DefaultName)
 			}
 		}
+	}
 
-		log.Info("Workspaces", "focused", focused, "active", active, "background", background)
+	if flags.IsUiMode {
+		spawnUi()
+	} else {
+		// TODO: re-implement with better methods
+		// focusedMonitor := hd.GetFocusedMonitor()
+		//
+		// var focused string
+		// var active []string
+		// var background []string
+		//
+		// for _, ws := range workspaces {
+		// 	if ws.LastWindow == "0x0" {
+		// 		background = append(background, ws.Name)
+		// 	} else {
+		//
+		// 		if ws.MonitorID == focusedMonitor.Id {
+		// 			focused = ws.Name
+		// 		} else {
+		// 			active = append(active, ws.Name)
+		// 		}
+		// 	}
+		// }
+		//
+		// log.Info("Workspaces:", "focused", focused, "active", active, "background", background)
 	}
 }
 
@@ -104,7 +91,7 @@ func spawnUi() {
 	/**
 	* Rename Mode
 	**/
-	if *renameMode == true {
+	if *flags.RenameMode == true {
 		var onSubmit = func(input string) {
 			var existingWorkspace *hd.Workspace
 
@@ -138,7 +125,7 @@ func spawnUi() {
 	/**
 	* Select Mode
 	**/
-	if *selectMode == true || *sendMode == true {
+	if *flags.SelectMode == true || *flags.SendMode == true {
 		workspaceNames := hd.GetAllWorkspaceNames(true)
 
 		var onResize = func(height float32) {
@@ -151,8 +138,8 @@ func spawnUi() {
 				return
 			}
 
-			if *sendMode == true {
-				hd.MoveWindowToWorkspaceSilent(*activeWindow, input)
+			if *flags.SendMode == true {
+				activeWindow.MoveToWorkspaceSilent(input)
 			} else {
 				var existingWorkspace *hd.Workspace
 
@@ -172,7 +159,7 @@ func spawnUi() {
 			os.Exit(0)
 		}
 
-		selector, initialHeight := ui.NewSelectorWidget(workspaceNames, onSubmit, onResize, onDismiss)
+		selector, initialHeight := ui.NewSelectorWidget(workspaceNames, config.AutoComplete, onSubmit, onResize, onDismiss)
 		window.Resize(fyne.NewSize(300, initialHeight))
 
 		window.SetContent(
