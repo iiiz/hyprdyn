@@ -1,16 +1,17 @@
 # hyprdyn
 
-Hyprdyn is a dynamic named workspace utility for Hyprland.
+Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by XMonad DynamicWorkspaces.
 
 #### Features:
 
 - Spawn workspaces by name.
 - Swap to workspaces by name.
 - Rename workspaces.
-- Send a window to a workspace by name.
-- Auto-completion with tab selection.
+- Send a window to a workspace by name. (shift-[enter/return] to follow window.)
+- Auto-completion with tab selection. (shift-tab reverse)
 - Switch to or spawn primary workspace. (config req.)
 - Per monitor default workspaces (config req.)
+- Auto-close on focus loss to stay out of the way.
 
 #### Usage
 
