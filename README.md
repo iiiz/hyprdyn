@@ -30,13 +30,25 @@ Usage of hyprdyn:
 
 #### Example Hyprland Config
 
+Note: This is **my** config and I use weird keyboards so YMMV. Customizing bindings to your preference is recommended.
+
 ```
+# Setup workspaces on start
 exec-once = hyprdyn -setup
 
+# bindings
 bind = $mainMod SHIFT, H, exec, hyprdyn -primary
 bind = $mainMod SHIFT, S, exec, hyprdyn -send
 bind = $mainMod, S, exec, hyprdyn -select
 bind = $mainMod, R, exec, hyprdyn -rename
+
+# Window position center
+windowrule {
+    name = hyprdyn_rule
+    float = on
+    center = on
+    match:class = hyprdyn
+}
 ```
 
 #### Configuring Hyprdyn
