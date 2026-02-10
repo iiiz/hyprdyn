@@ -90,10 +90,9 @@ func main() {
 }
 
 func spawnUi() {
-	hyprdynApp := app.New()
+	hyprdynApp := app.NewWithID("iiiz.hyprdyn")
 	window := hyprdynApp.NewWindow("hyprdyn")
 	window.SetFixedSize(true)
-	window.CenterOnScreen()
 	window.RequestFocus()
 
 	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
