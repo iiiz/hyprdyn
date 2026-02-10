@@ -65,27 +65,9 @@ func main() {
 	if flags.IsUiMode {
 		spawnUi()
 	} else {
-		// TODO: re-implement with better methods
-		// focusedMonitor := hd.GetFocusedMonitor()
-		//
-		// var focused string
-		// var active []string
-		// var background []string
-		//
-		// for _, ws := range workspaces {
-		// 	if ws.LastWindow == "0x0" {
-		// 		background = append(background, ws.Name)
-		// 	} else {
-		//
-		// 		if ws.MonitorID == focusedMonitor.Id {
-		// 			focused = ws.Name
-		// 		} else {
-		// 			active = append(active, ws.Name)
-		// 		}
-		// 	}
-		// }
-		//
-		// log.Info("Workspaces:", "focused", focused, "active", active, "background", background)
+		// TODO: Maybe string format output of active, foreground and background WS, not in scope for now.
+		hd.PrintUsage()
+		os.Exit(1)
 	}
 }
 
@@ -145,14 +127,18 @@ func spawnUi() {
 			window.Resize(fyne.NewSize(300, height))
 		}
 
-		var onSubmit = func(input string) {
+		var onSubmit = func(input string, follow bool) {
 			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
 			if specialRegexp.MatchString(input) {
 				return
 			}
 
 			if *flags.SendMode == true {
-				activeWindow.MoveToWorkspaceSilent(input)
+				if follow {
+					activeWindow.MoveToWorkspace(input)
+				} else {
+					activeWindow.MoveToWorkspaceSilent(input)
+				}
 			} else {
 				var existingWorkspace *hd.Workspace
 

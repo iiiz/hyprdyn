@@ -7,7 +7,6 @@ import (
 	"github.com/thiagokokada/hyprland-go"
 )
 
-// shallow embed to ease separation of concerns and extend funcs
 type Workspace struct {
 	hyprland.Workspace
 

@@ -14,7 +14,7 @@ type SelectorWidget struct {
 
 	TabCompleteListWidget *widget.List
 
-	onSubmit             func(i string)
+	onSubmit             func(i string, f bool)
 	onDismiss            func()
 	completionBinding    binding.List[*CompletionItem]
 	completionList       CompletionList
@@ -24,7 +24,7 @@ type SelectorWidget struct {
 	dd                   desktop.Driver
 }
 
-func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSubmit func(i string), OnResize func(y float32), OnDismiss func()) (*SelectorWidget, float32) {
+func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSubmit func(i string, f bool), OnResize func(y float32), OnDismiss func()) (*SelectorWidget, float32) {
 	selector := &SelectorWidget{}
 	selector.onSubmit = OnSubmit
 	selector.onDismiss = OnDismiss
@@ -166,7 +166,10 @@ func (s *SelectorWidget) TypedKey(key *fyne.KeyEvent) {
 
 		s.TabCompleteListWidget.Refresh()
 	case fyne.KeyReturn, fyne.KeyEnter:
+		var follow bool
 		var input string
+
+		follow = (mods & fyne.KeyModifierShift) != 0
 
 		if s.tabSelectionIndex != nil {
 			currentCompletionList, err := s.completionBinding.Get()
@@ -183,7 +186,7 @@ func (s *SelectorWidget) TypedKey(key *fyne.KeyEvent) {
 			}
 		}
 
-		s.onSubmit(input)
+		s.onSubmit(input, follow)
 	default:
 		s.Entry.TypedKey(key)
 	}

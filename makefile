@@ -7,6 +7,6 @@ build:
 	go build -o ./bin/hyprdyn
 
 install:
-	mv ./bin/hyprdyn ~/.local/bin/hyprdyn
+	sudo cp ./bin/hyprdyn /usr/bin/hyprdyn
 
 

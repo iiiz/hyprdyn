@@ -2,8 +2,8 @@ package hyprdyn
 
 import (
 	"flag"
-
-	"github.com/charmbracelet/log"
+	"fmt"
+	"os"
 )
 
 type RuntimeFlags struct {
@@ -49,14 +49,19 @@ func CaptureFlags() RuntimeFlags {
 	}
 
 	if flagCount > 1 {
-		log.Fatal("Error: Flags 'select', 'send', 'rename', ... cannot be combined.")
-	} else if flagCount == 0 {
-		log.Fatal("Error: No flags specified.")
+		PrintUsage()
+		os.Exit(1)
 	}
+
 	// if we have a flag assume ui mode
-	if flagCount == 1 && *flags.SetupMode != true || *flags.PrimaryCmd != true {
+	if flagCount == 1 && (*flags.SetupMode != true || *flags.PrimaryCmd != true) {
 		flags.IsUiMode = true
 	}
 
 	return flags
+}
+
+func PrintUsage() {
+	fmt.Print("Usage: hyprdyn [OPTION]\nOPTIONS:\n")
+	flag.PrintDefaults()
 }

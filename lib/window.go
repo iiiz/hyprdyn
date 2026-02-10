@@ -22,4 +22,7 @@ func (w Window) MoveToWorkspaceSilent(workspaceName string) {
 	Check(err)
 }
 
-// TODO: move to workspace & follow. To implement with flags expansion.
+func (w Window) MoveToWorkspace(workspaceName string) {
+	_, err := hyprlandClient.Dispatch(fmt.Sprintf("movetoworkspace name:%s,address:%s", workspaceName, w.Address))
+	Check(err)
+}
