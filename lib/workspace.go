@@ -58,7 +58,7 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 			hdWorkspace.Active = true
 		}
 
-		if hdWorkspace.LastWindow == "0x0" {
+		if hdWorkspace.LastWindow == "0x0" && hdWorkspace.Windows > 0 {
 			hdWorkspace.Background = true
 		} else {
 			hdWorkspace.Foreground = true
