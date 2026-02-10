@@ -80,3 +80,23 @@ Simple json config: `$HOME/.config/hyprdyn.json`
 - `primaryName`: Primary / default workspace name for quick access. With `-primary` flag, switch to this workspace or spawn on the active monitor.
 - `Monitors`: Default workspace names per monitor output.
 - `autoComplete`: Additional auto-completions aside from existing workspaces, active when a search term is typed using `-select` or `-send`.
+
+#### Building Hyprdyn
+
+Requirements:
+
+- go 1.19+
+- gcc
+- [Fyne](https://docs.fyne.io/started/quick/#prerequisites)
+
+```sh
+go mod download
+
+make clean build
+```
+
+#### Installing Hyprdyn
+
+```sh
+make clean build install
+```

@@ -8,23 +8,20 @@ import (
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
+	"github.com/charmbracelet/log"
 
 	hd "hyprdyn/lib"
 	ui "hyprdyn/lib/ui"
 )
 
-var config hd.Config
+var config *hd.Config
 var flags hd.RuntimeFlags
 var activeWindow hd.Window
 var workspaces hd.WorkspaceList
 
 func init() {
-	if c := hd.ReadConfig(); c != nil {
-		config = *c
-	}
-
+	config = hd.ReadConfig()
 	flags = hd.CaptureFlags()
-
 	hd.GetHyprClient()
 }
 
@@ -33,33 +30,42 @@ func main() {
 	activeWindow = hd.GetActiveWindow()
 
 	if *flags.SetupMode == true {
-		for _, monitorConfig := range config.Monitors {
-			ws := workspaces.GetForegroundByMonitor(monitorConfig.Id)
+		if config != nil {
+			for _, monitorConfig := range config.Monitors {
+				ws := workspaces.GetForegroundByMonitor(monitorConfig.Id)
 
-			if ws != nil && monitorConfig.DefaultName != nil {
-				ws.Rename(*monitorConfig.DefaultName)
+				if ws != nil && monitorConfig.DefaultName != nil {
+					ws.Rename(*monitorConfig.DefaultName)
+				}
 			}
-		}
 
-		os.Exit(0)
+			os.Exit(0)
+		} else {
+			log.Fatal("Hyprdyn: No config present.")
+		}
 	}
 
-	if *flags.PrimaryCmd == true && config.PrimaryName != nil {
-		var existingWorkspace *hd.Workspace
+	if *flags.PrimaryCmd == true {
+		if config != nil && config.PrimaryName != nil {
+			var existingWorkspace *hd.Workspace
 
-		for _, ws := range workspaces {
-			if ws.Name == *config.PrimaryName {
-				existingWorkspace = &ws
+			for _, ws := range workspaces {
+				if ws.Name == *config.PrimaryName {
+					existingWorkspace = &ws
+				}
 			}
-		}
 
-		if existingWorkspace != nil {
-			existingWorkspace.FocusOnCurrentMonitor()
+			if existingWorkspace != nil {
+				existingWorkspace.FocusOnCurrentMonitor()
+			} else {
+				hd.SpawnWorkspace(*config.PrimaryName)
+			}
+
+			os.Exit(0)
+
 		} else {
-			hd.SpawnWorkspace(*config.PrimaryName)
+			log.Fatal("Hyprdyn: No config or configured primary present.")
 		}
-
-		os.Exit(0)
 	}
 
 	if flags.IsUiMode {
@@ -122,6 +128,7 @@ func spawnUi() {
 	**/
 	if *flags.SelectMode == true || *flags.SendMode == true {
 		workspaceNames := hd.GetAllWorkspaceNames(true)
+		var autoComplete []string
 
 		var onResize = func(height float32) {
 			window.Resize(fyne.NewSize(300, height))
@@ -158,7 +165,11 @@ func spawnUi() {
 			os.Exit(0)
 		}
 
-		selector, initialHeight := ui.NewSelectorWidget(workspaceNames, config.AutoComplete, onSubmit, onResize, onDismiss)
+		if config != nil && config.AutoComplete != nil {
+			autoComplete = append(autoComplete, config.AutoComplete...)
+		}
+
+		selector, initialHeight := ui.NewSelectorWidget(workspaceNames, autoComplete, onSubmit, onResize, onDismiss)
 		window.Resize(fyne.NewSize(300, initialHeight))
 
 		window.SetContent(
