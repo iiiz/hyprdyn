@@ -1,5 +1,7 @@
 # hyprdyn
 
+![hyprdyn](./hyprdyn.png)
+
 Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by XMonad DynamicWorkspaces.
 
 #### Features:
