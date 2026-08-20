@@ -3,27 +3,41 @@ package hyprdyn
 import (
 	"fmt"
 	"regexp"
-
-	"github.com/thiagokokada/hyprland-go"
 )
 
 type Workspace struct {
-	hyprland.Workspace
+	WorkspaceType
+	Monitor         string `json:"monitor"`
+	MonitorID       int    `json:"monitorID"`
+	Windows         int    `json:"windows"`
+	HasFullScreen   bool   `json:"hasfullscreen"`
+	LastWindow      string `json:"lastwindow"`
+	LastWindowTitle string `json:"lastwindowtitle"`
 
+	// hyprdyn attributes
 	Active     bool
 	Foreground bool
 	Background bool
 }
 
+type WorkspaceType struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type WorkspaceList []Workspace
 
 func (ws Workspace) Rename(name string) {
-	_, err := hyprlandClient.Dispatch(fmt.Sprintf("renameworkspace %d %s", ws.Id, name))
+	arg := fmt.Sprintf("hl.dsp.workspace.rename({ workspace = \"%d\", name = \"%s\" })", ws.Id, name)
+
+	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
 	Check(err)
 }
 
 func (ws Workspace) FocusOnCurrentMonitor() {
-	_, err := hyprlandClient.Dispatch(fmt.Sprintf("focusworkspaceoncurrentmonitor name:%s", ws.Name))
+	arg := fmt.Sprintf("hl.dsp.focus({ workspace = \"name:%s\", on_current_monitor = true }) ", ws.Name)
+
+	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
 	Check(err)
 }
 
@@ -39,45 +53,56 @@ func (wss WorkspaceList) GetForegroundByMonitor(monitor string) *Workspace {
 
 // NOTE: potential foot-gun here unless name is checked for collision prior to calling.
 func SpawnWorkspace(name string) {
-	_, err := hyprlandClient.Dispatch(fmt.Sprintf("workspace name:%s", name))
+	arg := fmt.Sprintf("hl.dsp.focus({ workspace = \"name:%s\", on_current_monitor = true }) ", name)
+
+	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
 	Check(err)
 }
 
 func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
-	hyprWorkspaces, err := hyprlandClient.Workspaces()
-	activeWorkspace, err := hyprlandClient.ActiveWorkspace()
+	var workspaces []Workspace
+
+	response, err := hyprlandClient.sendCommmand("workspaces", nil)
 	Check(err)
 
-	var workspaces []Workspace
+	workspaces, err = UnmarshalHyprlandResponse(response, &workspaces)
+	Check(err)
+
+	activeWorkspace := GetActiveWorkspace()
 	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
 
-	for _, ws := range hyprWorkspaces {
-		hdWorkspace := Workspace{Workspace: ws}
+	var result []Workspace
+	for _, ws := range workspaces {
 		if ws.Id == activeWorkspace.Id {
-			hdWorkspace.Active = true
+			ws.Active = true
 		}
 
-		if hdWorkspace.LastWindow == "0x0" && hdWorkspace.Windows > 0 {
-			hdWorkspace.Background = true
+		if ws.LastWindow == "0x0" && ws.Windows > 0 {
+			ws.Background = true
 		} else {
-			hdWorkspace.Foreground = true
+			ws.Foreground = true
 		}
 
 		if omitSpecial {
 			if !specialRegexp.MatchString(ws.Name) {
-				workspaces = append(workspaces, hdWorkspace)
+				result = append(workspaces, ws)
 
 			}
 		} else {
-			workspaces = append(workspaces, hdWorkspace)
+			result = append(workspaces, ws)
 		}
 	}
 
-	return workspaces
+	return result
 }
 
 func GetAllWorkspaceNames(omitSpecial bool) []string {
-	workspaces, err := hyprlandClient.Workspaces()
+	var workspaces []Workspace
+
+	response, err := hyprlandClient.sendCommmand("workspaces", nil)
+	Check(err)
+
+	workspaces, err = UnmarshalHyprlandResponse(response, &workspaces)
 	Check(err)
 
 	var workspaceNames []string
@@ -97,8 +122,13 @@ func GetAllWorkspaceNames(omitSpecial bool) []string {
 }
 
 func GetActiveWorkspace() Workspace {
-	hyprWorkspace, err := hyprlandClient.ActiveWorkspace()
+	var activeWorkspace Workspace
+
+	response, err := hyprlandClient.sendCommmand("activeworkspace", nil)
 	Check(err)
 
-	return Workspace{Workspace: hyprWorkspace}
+	activeWorkspace, err = UnmarshalHyprlandResponse(response, &activeWorkspace)
+	Check(err)
+
+	return activeWorkspace
 }

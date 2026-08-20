@@ -5,8 +5,8 @@ go 1.25.4
 require (
 	fyne.io/fyne/v2 v2.7.1
 	github.com/charmbracelet/log v0.4.2
-	github.com/thiagokokada/hyprland-go v0.4.1
 	go.deanishe.net/fuzzy v1.0.0
+	gopkg.in/go-playground/validator.v8 v8.18.2
 )
 
 require (
@@ -56,6 +56,6 @@ require (
 	golang.org/x/net v0.35.0 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	golang.org/x/text v0.22.0 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
