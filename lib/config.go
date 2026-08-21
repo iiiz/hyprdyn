@@ -6,7 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/charmbracelet/log"
-	"gopkg.in/go-playground/validator.v8"
+	"github.com/go-playground/validator/v10"
+
+	ht "hyprdyn/lib/ui/themes"
 )
 
 type MonitorConfig struct {
@@ -15,9 +17,11 @@ type MonitorConfig struct {
 }
 
 type Config struct {
-	Monitors     []MonitorConfig `validate:"omitempty,dive" json:"monitors,omitempty"`
-	AutoComplete []string        `validate:"omitempty,max=100" json:"autoComplete,omitempty"`
-	PrimaryName  *string         `validate:"omitempty,min=1,max=255" json:"primaryName,omitempty"`
+	Monitors     []MonitorConfig          `validate:"omitempty,dive" json:"monitors,omitempty"`
+	AutoComplete []string                 `validate:"omitempty,max=100" json:"autoComplete,omitempty"`
+	PrimaryName  *string                  `validate:"omitempty,min=1,max=255" json:"primaryName,omitempty"`
+	Theme        *string                  `validate:"omitempty,oneof=default emerald cyber nordly ruby snow darksky" json:"theme,omitempty"`
+	CustomTheme  *ht.HyprdynHexcolorTheme `validate:"omitempty" json:"customTheme,omitempty"`
 }
 
 var validate *validator.Validate
@@ -26,15 +30,14 @@ func ReadConfig() *Config {
 	homeDir, err := os.UserHomeDir()
 	Check(err)
 
-	jsonFile := filepath.Join(homeDir, ".config", "hyprdyn.json")
+	jsonFile := filepath.Join(homeDir, ".config/hyprdyn/config.json")
 
 	if _, err := os.Stat(jsonFile); err == nil {
 		file, err := os.Open(jsonFile)
 		Check(err)
 		defer file.Close()
 
-		validatiorConfig := &validator.Config{TagName: "validate"}
-		validate = validator.New(validatiorConfig)
+		validate = validator.New()
 
 		var config Config
 
