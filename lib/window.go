@@ -34,7 +34,7 @@ type Window struct {
 func GetActiveWindow() Window {
 	var window Window
 
-	res, err := hyprlandClient.sendCommmand("activewindow", nil)
+	res, err := hyprlandClient.sendCommand("activewindow", nil)
 	Check(err)
 
 	window, err = UnmarshalHyprlandResponse(res, &window)
@@ -46,13 +46,13 @@ func GetActiveWindow() Window {
 func (w Window) MoveToWorkspaceSilent(workspaceName string) {
 	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = false, window = \"address:%s\"})", workspaceName, w.Address)
 
-	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
+	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
 }
 
 func (w Window) MoveToWorkspace(workspaceName string) {
 	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = true, window = \"address:%s\"})", workspaceName, w.Address)
 
-	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
+	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
 }
