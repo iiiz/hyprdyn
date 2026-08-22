@@ -47,6 +47,7 @@ func SetCustomTheme(customTheme ht.HyprdynHexcolorTheme) {
 		InputBackground: hexToRGBA(customTheme.InputBackground),
 		InputBorder:     hexToRGBA(customTheme.InputBorder),
 		Placeholder:     hexToRGBA(customTheme.Placeholder),
+		ListSeparator:   hexToRGBA(customTheme.ListSeparator),
 		Text:            hexToRGBA(customTheme.Text),
 		NewText:         hexToRGBA(customTheme.NewText),
 		NewHighLight:    hexToRGBA(customTheme.NewHighLight),
