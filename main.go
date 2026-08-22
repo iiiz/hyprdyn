@@ -79,6 +79,18 @@ func main() {
 
 func spawnUi() {
 	hyprdynApp := app.NewWithID("iiiz.hyprdyn")
+
+	if config != nil {
+		if config.Theme != nil {
+			ui.SetTheme(*config.Theme)
+		} else if config.CustomTheme != nil {
+			ui.SetCustomTheme(*config.CustomTheme)
+		}
+	}
+
+	theme := ui.UseTheme()
+	hyprdynApp.Settings().SetTheme(theme)
+
 	window := hyprdynApp.NewWindow("hyprdyn")
 	window.SetFixedSize(true)
 	window.RequestFocus()

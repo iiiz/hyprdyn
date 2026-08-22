@@ -2,7 +2,6 @@ package hyprdyn_ui
 
 import (
 	"fmt"
-	"image/color"
 	"regexp"
 
 	"fyne.io/fyne/v2"
@@ -17,6 +16,7 @@ type CompletionItem struct {
 	Label     string
 	Highlight bool
 	NewEntry  bool
+	AutoEntry bool
 
 	// fuzzy sort
 	Score *float64
@@ -27,14 +27,16 @@ type CompletionItem struct {
 }
 
 func (item *CompletionItem) textReset() {
-	item.text.Color = color.White
+	theme := UseTheme()
+	item.text.Color = theme.Text
 	item.text.TextStyle = fyne.TextStyle{}
 	item.text.TextSize = 14
 }
 
 func (item *CompletionItem) GetDefaultText() fyne.CanvasObject {
+	theme := UseTheme()
 	if item.text == nil {
-		item.text = canvas.NewText(item.Label, color.White)
+		item.text = canvas.NewText(item.Label, theme.Text)
 	}
 
 	item.textReset()
@@ -43,8 +45,9 @@ func (item *CompletionItem) GetDefaultText() fyne.CanvasObject {
 }
 
 func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
+	theme := UseTheme()
 	if item.text == nil {
-		item.text = canvas.NewText(item.Label, color.White)
+		item.text = canvas.NewText(item.Label, theme.Text)
 	} else {
 		item.textReset()
 	}
@@ -56,22 +59,26 @@ func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
 		item.text.TextStyle = fyne.TextStyle{Bold: true}
 
 		if specialRegexp.MatchString(item.Label) {
-			item.text.Color = color.RGBA{R: 255, G: 90, B: 90, A: 255}
+			item.text.Color = theme.DisabledText
 		} else {
 			if item.Highlight {
-				item.text.Color = color.RGBA{R: 110, G: 190, B: 255, A: 255}
+				item.text.Color = theme.NewHighLight
 			} else {
-				item.text.Color = color.RGBA{R: 0, G: 255, B: 0, A: 255}
+				item.text.Color = theme.NewText
 			}
 		}
 
 		return item.text
 	}
 
+	if item.AutoEntry {
+		item.text.Color = theme.Suggestion
+	}
+
 	if item.Highlight {
 		item.text.Text = item.Label
 		item.text.TextStyle = fyne.TextStyle{Bold: true}
-		item.text.Color = color.RGBA{R: 90, G: 90, B: 255, A: 255}
+		item.text.Color = theme.Highlight
 
 		return item.text
 	}

@@ -80,7 +80,7 @@ func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSu
 		if !selector.autoCompleteCombined {
 			// search initiated, combine autocomplete defaults
 			for _, name := range selector.dedupedAutoComplete {
-				selector.completionList = append(selector.completionList, &CompletionItem{Label: name, Highlight: false})
+				selector.completionList = append(selector.completionList, &CompletionItem{Label: name, Highlight: false, AutoEntry: true})
 			}
 			selector.autoCompleteCombined = true
 		} else if len(input) == 0 {
