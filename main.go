@@ -22,7 +22,7 @@ var workspaces hd.WorkspaceList
 func init() {
 	config = hd.ReadConfig()
 	flags = hd.CaptureFlags()
-	hd.GetHyprClient()
+	hd.InitHyprlandClient()
 }
 
 func main() {

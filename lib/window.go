@@ -2,27 +2,57 @@ package hyprdyn
 
 import (
 	"fmt"
-
-	"github.com/thiagokokada/hyprland-go"
 )
 
+type FullscreenState int
+
 type Window struct {
-	hyprland.Window
+	Address          string          `json:"address"`
+	Mapped           bool            `json:"mapped"`
+	Hidden           bool            `json:"hidden"`
+	At               []int           `json:"at"`
+	Size             []int           `json:"size"`
+	Workspace        WorkspaceType   `json:"workspace"`
+	Floating         bool            `json:"floating"`
+	Pseudo           bool            `json:"pseudo"`
+	Monitor          int             `json:"monitor"`
+	Class            string          `json:"class"`
+	Title            string          `json:"title"`
+	InitialClass     string          `json:"initialClass"`
+	InitialTitle     string          `json:"initialTitle"`
+	Pid              int             `json:"pid"`
+	Xwayland         bool            `json:"xwayland"`
+	Pinned           bool            `json:"pinned"`
+	Fullscreen       FullscreenState `json:"fullscreen"`
+	FullscreenClient FullscreenState `json:"fullscreenClient"`
+	Grouped          []string        `json:"grouped"`
+	Tags             []string        `json:"tags"`
+	Swallowing       string          `json:"swallowing"`
+	FocusHistoryId   int             `json:"focusHistoryID"`
 }
 
 func GetActiveWindow() Window {
-	window, err := hyprlandClient.ActiveWindow()
+	var window Window
+
+	res, err := hyprlandClient.sendCommmand("activewindow", nil)
 	Check(err)
 
-	return Window{Window: window}
+	window, err = UnmarshalHyprlandResponse(res, &window)
+	Check(err)
+
+	return window
 }
 
 func (w Window) MoveToWorkspaceSilent(workspaceName string) {
-	_, err := hyprlandClient.Dispatch(fmt.Sprintf("movetoworkspacesilent name:%s,address:%s", workspaceName, w.Address))
+	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = false, window = \"address:%s\"})", workspaceName, w.Address)
+
+	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
 	Check(err)
 }
 
 func (w Window) MoveToWorkspace(workspaceName string) {
-	_, err := hyprlandClient.Dispatch(fmt.Sprintf("movetoworkspace name:%s,address:%s", workspaceName, w.Address))
+	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = true, window = \"address:%s\"})", workspaceName, w.Address)
+
+	_, err := hyprlandClient.sendCommmand("dispatch", &arg)
 	Check(err)
 }
