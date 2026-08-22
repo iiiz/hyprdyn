@@ -137,6 +137,10 @@ func (s *SelectorWidget) TypedKey(key *fyne.KeyEvent) {
 			log.Fatal(err)
 		}
 
+		if len(currentCompletionList) == 0 {
+			break
+		}
+
 		if s.tabSelectionIndex == nil {
 			var i int = 0
 			s.tabSelectionIndex = &i
@@ -175,6 +179,10 @@ func (s *SelectorWidget) TypedKey(key *fyne.KeyEvent) {
 			currentCompletionList, err := s.completionBinding.Get()
 			if err != nil {
 				log.Fatal(err)
+			}
+
+			if *s.tabSelectionIndex < 0 || *s.tabSelectionIndex >= len(currentCompletionList) {
+				break
 			}
 
 			input = currentCompletionList[*s.tabSelectionIndex].Label
