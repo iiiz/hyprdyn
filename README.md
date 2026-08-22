@@ -111,7 +111,7 @@ Note: If `theme` is present it will override any `customTheme` defined.
 
 Requirements:
 
-- go 1.19+
+- go 1.25+
 - gcc
 - [Fyne](https://docs.fyne.io/started/quick/#prerequisites)
 
