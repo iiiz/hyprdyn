@@ -35,6 +35,7 @@ Usage of hyprdyn:
 #### Example Hyprland Config
 
 Note: Use version tag 1.0.0 for hyprlang / hyprland 0.56.x and lesser versions.
+
 Note: This is **my** config and I use weird keyboards so YMMV. Customizing bindings to your preference is recommended.
 
 ```lua
@@ -102,7 +103,8 @@ Note: If `theme` is present it will override any `customTheme` defined.
 - `primaryName`: Primary / default workspace name for quick access. With `-primary` flag, switch to this workspace or spawn on the active monitor.
 - `Monitors`: Default workspace names per monitor output.
 - `autoComplete`: Additional auto-completions aside from existing workspaces, active when a search term is typed using `-select` or `-send`.
-- `theme`: Built in themes by name. Overrides `customTheme` if defined. One of: (default emerald cyber nordly ruby snow darksky ocean)
+- `theme`: Built in themes by name. Overrides `customTheme` if defined.
+  - One of: (default emerald cyber nordly ruby snow darksky ocean)
 - `customTheme`: Theme each component of the ui with hex colors. Must be in the format `#FFFFFF`.
 
 #### Building Hyprdyn
