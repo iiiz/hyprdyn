@@ -1,4 +1,4 @@
-default: clean
+default: build
 
 clean:
 	rm -rf ./bin
