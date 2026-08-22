@@ -85,11 +85,11 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 
 		if omitSpecial {
 			if !specialRegexp.MatchString(ws.Name) {
-				result = append(workspaces, ws)
+				result = append(result, ws)
 
 			}
 		} else {
-			result = append(workspaces, ws)
+			result = append(result, ws)
 		}
 	}
 
