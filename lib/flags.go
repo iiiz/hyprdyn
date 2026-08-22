@@ -54,7 +54,7 @@ func CaptureFlags() RuntimeFlags {
 	}
 
 	// if we have a flag assume ui mode
-	if flagCount == 1 && (*flags.SetupMode != true || *flags.PrimaryCmd != true) {
+	if flagCount == 1 && (*flags.SetupMode != true && *flags.PrimaryCmd != true) {
 		flags.IsUiMode = true
 	}
 
