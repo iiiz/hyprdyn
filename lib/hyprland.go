@@ -62,7 +62,7 @@ func NewHyprlandClient() *HyprlandRequestClient {
 	}
 }
 
-func (c *HyprlandRequestClient) sendCommmand(command string, args *string) (response []byte, err error) {
+func (c *HyprlandRequestClient) sendCommand(command string, args *string) (response []byte, err error) {
 	requestBuf := bytes.NewBuffer(nil)
 
 	requestBuf.Write([]byte{'j', '/'})
@@ -98,29 +98,16 @@ func (c *HyprlandRequestClient) sendCommmand(command string, args *string) (resp
 		return nil, fmt.Errorf("Error on socket flush: %w", err)
 	}
 
-	responseBuf := bytes.NewBuffer(nil)
-	readBuf := make([]byte, MaxBufferSize)
-	reader := bufio.NewReader(connection)
-	for {
-		n, err := reader.Read(readBuf)
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return nil, fmt.Errorf("Error reading response: %w", err)
-		}
-
-		responseBuf.Write(readBuf[:n])
-		if n < MaxBufferSize {
-			break
-		}
+	responseBuf, err := io.ReadAll(connection)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading response: %w", err)
 	}
 
 	if closeErr := connection.Close(); closeErr != nil {
 		err = errors.Join(err, fmt.Errorf("Error on close: %w", closeErr))
 	}
 
-	return responseBuf.Bytes(), err
+	return responseBuf, err
 }
 
 func UnmarshalHyprlandResponse[T any](response []byte, d *T) (T, error) {

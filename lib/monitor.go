@@ -29,7 +29,7 @@ func GetFocusedMonitor() Monitor {
 	var monitors *[]Monitor
 	var focusedMonitor Monitor
 
-	response, err := hyprlandClient.sendCommmand("monitors all", nil)
+	response, err := hyprlandClient.sendCommand("monitors all", nil)
 	Check(err)
 
 	monitors, err = UnmarshalHyprlandResponse(response, &monitors)
