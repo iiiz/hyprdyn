@@ -28,6 +28,8 @@ func UseTheme() ht.HyprdynTheme {
 			return ht.Snow
 		case "darksky":
 			return ht.DarkSky
+		case "ocean":
+			return ht.Ocean
 		}
 	} else {
 		return userTheme

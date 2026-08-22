@@ -20,7 +20,7 @@ type Config struct {
 	Monitors     []MonitorConfig          `validate:"omitempty,dive" json:"monitors,omitempty"`
 	AutoComplete []string                 `validate:"omitempty,max=100" json:"autoComplete,omitempty"`
 	PrimaryName  *string                  `validate:"omitempty,min=1,max=255" json:"primaryName,omitempty"`
-	Theme        *string                  `validate:"omitempty,oneof=default emerald cyber nordly ruby snow darksky" json:"theme,omitempty"`
+	Theme        *string                  `validate:"omitempty,oneof=default emerald cyber nordly ruby snow darksky ocean" json:"theme,omitempty"`
 	CustomTheme  *ht.HyprdynHexcolorTheme `validate:"omitempty" json:"customTheme,omitempty"`
 }
 
