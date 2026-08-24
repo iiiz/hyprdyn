@@ -24,8 +24,6 @@ type Config struct {
 	CustomTheme  *ht.HyprdynHexcolorTheme `validate:"omitempty" json:"customTheme,omitempty"`
 }
 
-var validate *validator.Validate
-
 func ReadConfig() *Config {
 	homeDir, err := os.UserHomeDir()
 	Check(err)
@@ -37,7 +35,7 @@ func ReadConfig() *Config {
 		Check(err)
 		defer file.Close()
 
-		validate = validator.New()
+		validate := validator.New()
 
 		var config Config
 

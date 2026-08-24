@@ -1,8 +1,11 @@
 package hyprdyn_ui
 
 import (
+	"fmt"
 	"image/color"
 	"strconv"
+
+	"github.com/charmbracelet/log"
 
 	ht "hyprdyn/lib/ui/themes"
 )
@@ -45,22 +48,38 @@ func SetTheme(name string) {
 func SetCustomTheme(customTheme ht.HyprdynHexcolorTheme) {
 	useCustom = true
 	userTheme = ht.HyprdynTheme{
-		Background:      hexToRGBA(customTheme.Background),
-		InputBackground: hexToRGBA(customTheme.InputBackground),
-		InputBorder:     hexToRGBA(customTheme.InputBorder),
-		Placeholder:     hexToRGBA(customTheme.Placeholder),
-		ListSeparator:   hexToRGBA(customTheme.ListSeparator),
-		Text:            hexToRGBA(customTheme.Text),
-		NewText:         hexToRGBA(customTheme.NewText),
-		NewHighLight:    hexToRGBA(customTheme.NewHighLight),
-		Highlight:       hexToRGBA(customTheme.Highlight),
-		Suggestion:      hexToRGBA(customTheme.Suggestion),
-		DisabledText:    hexToRGBA(customTheme.DisabledText),
+		Background:      mustHexToRGBA(customTheme.Background),
+		InputBackground: mustHexToRGBA(customTheme.InputBackground),
+		InputBorder:     mustHexToRGBA(customTheme.InputBorder),
+		Placeholder:     mustHexToRGBA(customTheme.Placeholder),
+		ListSeparator:   mustHexToRGBA(customTheme.ListSeparator),
+		Text:            mustHexToRGBA(customTheme.Text),
+		NewText:         mustHexToRGBA(customTheme.NewText),
+		NewHighLight:    mustHexToRGBA(customTheme.NewHighLight),
+		Highlight:       mustHexToRGBA(customTheme.Highlight),
+		Suggestion:      mustHexToRGBA(customTheme.Suggestion),
+		DisabledText:    mustHexToRGBA(customTheme.DisabledText),
 	}
 }
 
-func hexToRGBA(hex string) color.RGBA {
-	values, _ := strconv.ParseUint(string(hex[1:]), 16, 32)
+func mustHexToRGBA(hex string) color.RGBA {
+	colorValue, err := hexToRGBA(hex)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	return color.RGBA{R: uint8(values >> 16), G: uint8((values >> 8) & 0xFF), B: uint8(values & 0xFF), A: 255}
+	return colorValue
+}
+
+func hexToRGBA(hex string) (color.RGBA, error) {
+	if len(hex) != 7 || hex[0] != '#' {
+		return color.RGBA{}, fmt.Errorf("invalid hex color %q, expected format #FFFFFF", hex)
+	}
+
+	values, err := strconv.ParseUint(hex[1:], 16, 32)
+	if err != nil {
+		return color.RGBA{}, fmt.Errorf("invalid hex color %q: %w", hex, err)
+	}
+
+	return color.RGBA{R: uint8(values >> 16), G: uint8((values >> 8) & 0xFF), B: uint8(values & 0xFF), A: 255}, nil
 }
