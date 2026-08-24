@@ -22,8 +22,6 @@ type HyprdynHexcolorTheme struct {
 }
 
 type HyprdynTheme struct {
-	fyne.Theme
-
 	// fyne theme colors
 	Background      color.RGBA
 	InputBackground color.RGBA

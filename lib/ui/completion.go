@@ -33,17 +33,6 @@ func (item *CompletionItem) textReset() {
 	item.text.TextSize = 14
 }
 
-func (item *CompletionItem) GetDefaultText() fyne.CanvasObject {
-	theme := UseTheme()
-	if item.text == nil {
-		item.text = canvas.NewText(item.Label, theme.Text)
-	}
-
-	item.textReset()
-
-	return item.text
-}
-
 func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
 	theme := UseTheme()
 	if item.text == nil {
