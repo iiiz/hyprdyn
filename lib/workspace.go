@@ -27,7 +27,7 @@ type WorkspaceType struct {
 
 type WorkspaceList []Workspace
 
-var specialWorkspaceRegexp = regexp.MustCompile("^special(?:[:]{1}.*)*$")
+var specialWorkspaceRegexp = regexp.MustCompile(`^special(:.*)?$`)
 var workspaceNameRegexp = regexp.MustCompile(`^[A-Za-z0-9 ._:@?\/-]{1,255}$`)
 
 func ValidWorkspaceName(name string) bool {
