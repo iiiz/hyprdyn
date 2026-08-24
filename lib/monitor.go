@@ -26,16 +26,15 @@ type Monitor struct {
 }
 
 func GetFocusedMonitor() Monitor {
-	var monitors *[]Monitor
 	var focusedMonitor Monitor
 
 	response, err := hyprlandClient.sendCommand("monitors all", nil)
 	Check(err)
 
-	monitors, err = UnmarshalHyprlandResponse(response, &monitors)
+	monitors, err := UnmarshalHyprlandResponse[[]Monitor](response)
 	Check(err)
 
-	for _, mon := range *monitors {
+	for _, mon := range monitors {
 		if mon.Focused {
 			focusedMonitor = mon
 		}
