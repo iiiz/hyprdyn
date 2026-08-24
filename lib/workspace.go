@@ -27,6 +27,13 @@ type WorkspaceType struct {
 
 type WorkspaceList []Workspace
 
+var specialWorkspaceRegexp = regexp.MustCompile("^special(?:[:]{1}.*)*$")
+var workspaceNameRegexp = regexp.MustCompile(`^[A-Za-z0-9 ._:@?\/-]{1,255}$`)
+
+func ValidWorkspaceName(name string) bool {
+	return workspaceNameRegexp.MatchString(name) && !specialWorkspaceRegexp.MatchString(name)
+}
+
 func (ws Workspace) Rename(name string) {
 	arg := fmt.Sprintf("hl.dsp.workspace.rename({ workspace = \"%d\", name = \"%s\" })", ws.Id, name)
 
@@ -79,7 +86,6 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 	Check(err)
 
 	activeWorkspace := GetActiveWorkspace()
-	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
 
 	var result []Workspace
 	for _, ws := range workspaces {
@@ -94,7 +100,7 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 		}
 
 		if omitSpecial {
-			if !specialRegexp.MatchString(ws.Name) {
+			if !specialWorkspaceRegexp.MatchString(ws.Name) {
 				result = append(result, ws)
 
 			}

@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"regexp"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -89,8 +88,6 @@ func spawnUi() {
 	window.SetFixedSize(true)
 	window.RequestFocus()
 
-	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
-
 	var onDismiss = func() {
 		os.Exit(0)
 	}
@@ -100,8 +97,7 @@ func spawnUi() {
 	**/
 	if *flags.RenameMode == true {
 		var onSubmit = func(input string) {
-			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
-			if specialRegexp.MatchString(input) {
+			if !hd.ValidWorkspaceName(input) {
 				return
 			}
 
@@ -135,8 +131,7 @@ func spawnUi() {
 		}
 
 		var onSubmit = func(input string, follow bool) {
-			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
-			if specialRegexp.MatchString(input) {
+			if !hd.ValidWorkspaceName(input) {
 				return
 			}
 
