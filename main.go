@@ -127,7 +127,7 @@ func spawnUi() {
 	* Select Mode
 	**/
 	if *flags.SelectMode == true || *flags.SendMode == true {
-		workspaceNames := hd.GetAllWorkspaceNames(true)
+		workspaceNames := workspaces.Names()
 		var autoComplete []string
 
 		var onResize = func(height float32) {

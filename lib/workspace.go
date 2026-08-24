@@ -106,29 +106,14 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 	return result
 }
 
-func GetAllWorkspaceNames(omitSpecial bool) []string {
-	var workspaces []Workspace
+func (wss WorkspaceList) Names() []string {
+	var names []string
 
-	response, err := hyprlandClient.sendCommand("workspaces", nil)
-	Check(err)
-
-	workspaces, err = UnmarshalHyprlandResponse[[]Workspace](response)
-	Check(err)
-
-	var workspaceNames []string
-	specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
-
-	for _, ws := range workspaces {
-		if omitSpecial {
-			if !specialRegexp.MatchString(ws.Name) {
-				workspaceNames = append(workspaceNames, ws.Name)
-			}
-		} else {
-			workspaceNames = append(workspaceNames, ws.Name)
-		}
+	for _, ws := range wss {
+		names = append(names, ws.Name)
 	}
 
-	return workspaceNames
+	return names
 }
 
 func GetActiveWorkspace() Workspace {
