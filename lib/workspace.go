@@ -65,7 +65,7 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 	response, err := hyprlandClient.sendCommand("workspaces", nil)
 	Check(err)
 
-	workspaces, err = UnmarshalHyprlandResponse(response, &workspaces)
+	workspaces, err = UnmarshalHyprlandResponse[[]Workspace](response)
 	Check(err)
 
 	activeWorkspace := GetActiveWorkspace()
@@ -102,7 +102,7 @@ func GetAllWorkspaceNames(omitSpecial bool) []string {
 	response, err := hyprlandClient.sendCommand("workspaces", nil)
 	Check(err)
 
-	workspaces, err = UnmarshalHyprlandResponse(response, &workspaces)
+	workspaces, err = UnmarshalHyprlandResponse[[]Workspace](response)
 	Check(err)
 
 	var workspaceNames []string
@@ -127,7 +127,7 @@ func GetActiveWorkspace() Workspace {
 	response, err := hyprlandClient.sendCommand("activeworkspace", nil)
 	Check(err)
 
-	activeWorkspace, err = UnmarshalHyprlandResponse(response, &activeWorkspace)
+	activeWorkspace, err = UnmarshalHyprlandResponse[Workspace](response)
 	Check(err)
 
 	return activeWorkspace

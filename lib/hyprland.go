@@ -110,18 +110,20 @@ func (c *HyprlandRequestClient) sendCommand(command string, args *string) (respo
 	return responseBuf, err
 }
 
-func UnmarshalHyprlandResponse[T any](response []byte, d *T) (T, error) {
+func UnmarshalHyprlandResponse[T any](response []byte) (T, error) {
+	var decoded T
+
 	if len(response) == 0 {
-		return *d, errors.New("empty response")
+		return decoded, errors.New("empty response")
 	}
 
-	err := json.Unmarshal(response, &d)
-	if err != nil {
-		return *d, fmt.Errorf(
+	if err := json.Unmarshal(response, &decoded); err != nil {
+		return decoded, fmt.Errorf(
 			"Error unmarshaling: %w, response: %s",
 			err,
 			response,
 		)
 	}
-	return *d, nil
+
+	return decoded, nil
 }

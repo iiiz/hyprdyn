@@ -37,7 +37,7 @@ func GetActiveWindow() Window {
 	res, err := hyprlandClient.sendCommand("activewindow", nil)
 	Check(err)
 
-	window, err = UnmarshalHyprlandResponse(res, &window)
+	window, err = UnmarshalHyprlandResponse[Window](res)
 	Check(err)
 
 	return window
