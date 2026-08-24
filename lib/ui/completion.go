@@ -2,11 +2,12 @@ package hyprdyn_ui
 
 import (
 	"fmt"
-	"regexp"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/canvas"
 	"go.deanishe.net/fuzzy"
+
+	hd "hyprdyn/lib"
 )
 
 /**
@@ -42,12 +43,10 @@ func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
 	}
 
 	if item.NewEntry {
-		specialRegexp := regexp.MustCompile("^special(?:[:]{1}.*)*$")
-
 		item.text.Text = fmt.Sprintf("+> %s", item.Label)
 		item.text.TextStyle = fyne.TextStyle{Bold: true}
 
-		if specialRegexp.MatchString(item.Label) {
+		if !hd.ValidWorkspaceName(item.Label) {
 			item.text.Color = theme.DisabledText
 		} else {
 			if item.Highlight {
