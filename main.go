@@ -47,16 +47,10 @@ func main() {
 
 	if *flags.PrimaryCmd == true {
 		if config != nil && config.PrimaryName != nil {
-			var existingWorkspace *hd.Workspace
+			existing, found := workspaces.FindByName(*config.PrimaryName)
 
-			for _, ws := range workspaces {
-				if ws.Name == *config.PrimaryName {
-					existingWorkspace = &ws
-				}
-			}
-
-			if existingWorkspace != nil {
-				existingWorkspace.FocusOnCurrentMonitor()
+			if found {
+				existing.FocusOnCurrentMonitor()
 			} else {
 				hd.SpawnWorkspace(*config.PrimaryName)
 			}
@@ -106,20 +100,14 @@ func spawnUi() {
 	**/
 	if *flags.RenameMode == true {
 		var onSubmit = func(input string) {
-			var existingWorkspace *hd.Workspace
-
 			// INFO: Refuse to switch/spawn special workspace, looks to be unsupported https://wiki.hypr.land/Configuring/Dispatchers/#workspaces
 			if specialRegexp.MatchString(input) {
 				return
 			}
 
-			for _, ws := range workspaces {
-				if ws.Name == input {
-					existingWorkspace = &ws
-				}
-			}
+			_, found := workspaces.FindByName(input)
 
-			if existingWorkspace == nil {
+			if !found {
 				active := hd.GetActiveWorkspace()
 
 				active.Rename(input)
@@ -159,16 +147,10 @@ func spawnUi() {
 					activeWindow.MoveToWorkspaceSilent(input)
 				}
 			} else {
-				var existingWorkspace *hd.Workspace
+				existing, found := workspaces.FindByName(input)
 
-				for _, ws := range workspaces {
-					if ws.Name == input {
-						existingWorkspace = &ws
-					}
-				}
-
-				if existingWorkspace != nil {
-					existingWorkspace.FocusOnCurrentMonitor()
+				if found {
+					existing.FocusOnCurrentMonitor()
 				} else {
 					hd.SpawnWorkspace(input)
 				}

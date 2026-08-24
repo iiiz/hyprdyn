@@ -41,6 +41,16 @@ func (ws Workspace) FocusOnCurrentMonitor() {
 	Check(err)
 }
 
+func (wss WorkspaceList) FindByName(name string) (ws Workspace, found bool) {
+	for _, ws := range wss {
+		if ws.Name == name {
+			return ws, true
+		}
+	}
+
+	return Workspace{}, false
+}
+
 func (wss WorkspaceList) GetForegroundByMonitor(monitor string) *Workspace {
 	for _, ws := range wss {
 		if ws.Foreground == true && ws.Monitor == monitor {
