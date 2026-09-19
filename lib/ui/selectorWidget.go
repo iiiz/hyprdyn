@@ -1,6 +1,8 @@
 package hyprdyn_ui
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/data/binding"
@@ -9,6 +11,8 @@ import (
 	"github.com/charmbracelet/log"
 )
 
+const dismissGrace = 250 * time.Millisecond
+
 type SelectorWidget struct {
 	widget.Entry
 
@@ -16,6 +20,7 @@ type SelectorWidget struct {
 
 	onSubmit             func(i string, f bool)
 	onDismiss            func()
+	dismissTimer         *time.Timer
 	completionBinding    binding.List[*CompletionItem]
 	completionList       CompletionList
 	tabSelectionIndex    *int
@@ -119,8 +124,23 @@ func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSu
 	return selector, (48*float32(selector.completionList.Len()) + 42)
 }
 
+func (s *SelectorWidget) FocusGained() {
+	s.Entry.FocusGained()
+
+	if s.dismissTimer != nil {
+		s.dismissTimer.Stop()
+		s.dismissTimer = nil
+	}
+}
+
 func (s *SelectorWidget) FocusLost() {
-	s.onDismiss()
+	s.Entry.FocusLost()
+
+	if s.dismissTimer != nil {
+		s.dismissTimer.Stop()
+	}
+
+	s.dismissTimer = time.AfterFunc(dismissGrace, s.onDismiss)
 }
 
 func (s *SelectorWidget) AcceptsTab() bool {

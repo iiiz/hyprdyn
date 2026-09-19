@@ -1,6 +1,8 @@
 package hyprdyn_ui
 
 import (
+	"time"
+
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/widget"
 )
@@ -8,8 +10,9 @@ import (
 type RenameWidget struct {
 	widget.Entry
 
-	onSubmit  func(i string)
-	onDismiss func()
+	onSubmit     func(i string)
+	onDismiss    func()
+	dismissTimer *time.Timer
 }
 
 func NewRenameWidget(OnSubmit func(i string), OnDismiss func()) *RenameWidget {
@@ -27,8 +30,23 @@ func NewRenameWidget(OnSubmit func(i string), OnDismiss func()) *RenameWidget {
 	return rename
 }
 
+func (rw *RenameWidget) FocusGained() {
+	rw.Entry.FocusGained()
+
+	if rw.dismissTimer != nil {
+		rw.dismissTimer.Stop()
+		rw.dismissTimer = nil
+	}
+}
+
 func (rw *RenameWidget) FocusLost() {
-	rw.onDismiss()
+	rw.Entry.FocusLost()
+
+	if rw.dismissTimer != nil {
+		rw.dismissTimer.Stop()
+	}
+
+	rw.dismissTimer = time.AfterFunc(dismissGrace, rw.onDismiss)
 }
 
 func (rw *RenameWidget) KeyDown(key *fyne.KeyEvent) {
