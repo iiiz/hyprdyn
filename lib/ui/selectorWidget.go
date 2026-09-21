@@ -102,7 +102,8 @@ func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSu
 		nextList := selector.completionList.FuzzySort(input, true)
 		nextLen := nextList.Len()
 
-		if (nextLen == 1 && *nextList[0].Match == false) || nextLen == 0 {
+		// input must be non-empty: with an empty term FuzzySort returns items with Match=nil
+		if input != "" && (nextLen == 0 || (nextLen == 1 && !*nextList[0].Match)) {
 			nextList = append(nextList, &CompletionItem{
 				Label: input, Highlight: false, NewEntry: true,
 			})
