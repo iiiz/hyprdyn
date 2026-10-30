@@ -4,6 +4,20 @@ All changes to Hyprdyn will be represented here.
 
 ---
 
+## [3.0.0](https://github.com/iiiz/hyprdyn/compare/2.0.1...3.0.0) (2026-10-30)
+
+### Bug Fixes
+
+  - ([5ddb115](https://github.com/iiiz/hyprdyn/commit/5ddb1154238cfc5590d1b908273f6ff89fed1763)) fix: workspace addressing per hyprland 0.57.0 changes.
+  - ([8fb6568](https://github.com/iiiz/hyprdyn/commit/8fb65682ddadd08d53cf3304dcf50b06663deb89)) fix: panic when clearing input with only one workspace active
+  - ([e6d3f89](https://github.com/iiiz/hyprdyn/commit/e6d3f890174d8a7f59140929053a7022c4a860e1)) fix: updated window struct to match hyprland spec
+  - ([cdf77d6](https://github.com/iiiz/hyprdyn/commit/cdf77d62e2d2865f47d4cb565efc49152e17d560)) fix: Add grace period for focus on startup.
+
+### Misc
+
+  - ([316830f](https://github.com/iiiz/hyprdyn/commit/316830fdad5cc4b42ba1061d89028614d8b105b7)) tech: extract monitor struct.
+
+
 ## [2.0.1](https://github.com/iiiz/hyprdyn/compare/2.0.0...2.0.1) (2026-08-24)
 
 ### Bug Fixes
