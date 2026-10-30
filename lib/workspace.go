@@ -28,11 +28,6 @@ type WorkspaceType struct {
 
 type WorkspaceList []Workspace
 
-type Monitor struct {
-	Name            string        `json:"name"`
-	ActiveWorkspace  WorkspaceType `json:"activeWorkspace"`
-}
-
 var specialWorkspaceRegexp = regexp.MustCompile(`^special(:.*)?$`)
 var workspaceNameRegexp = regexp.MustCompile(`^[A-Za-z0-9 ._:@?\/-]{1,255}$`)
 
@@ -91,13 +86,8 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 	workspaces, err = UnmarshalHyprlandResponse[[]Workspace](response)
 	Check(err)
 
+	monitors := GetMonitors()
 	activeWorkspace := GetActiveWorkspace()
-
-	monitorResp, err := hyprlandClient.sendCommand("monitors", nil)
-	Check(err)
-
-	monitors, err := UnmarshalHyprlandResponse[[]Monitor](monitorResp)
-	Check(err)
 
 	activeAddresses := make(map[string]bool)
 	for _, m := range monitors {
