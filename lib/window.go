@@ -55,7 +55,8 @@ func GetActiveWindow() Window {
 // MoveToWorkspaceSilent moves the window to the named workspace without
 // switching the active view, sending a dispatch command to the Hyprland socket.
 func (w Window) MoveToWorkspaceSilent(workspaceName string) {
-	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = false, window = \"address:%s\"})", workspaceName, w.Address)
+	target := resolveWorkspaceTarget(workspaceName)
+	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"%s\", follow = false, window = \"address:%s\"})", target, w.Address)
 
 	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
@@ -64,8 +65,27 @@ func (w Window) MoveToWorkspaceSilent(workspaceName string) {
 // MoveToWorkspace moves the window to the named workspace and switches the
 // active view to follow it, sending a dispatch command to the Hyprland socket.
 func (w Window) MoveToWorkspace(workspaceName string) {
-	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"name:%s\", follow = true, window = \"address:%s\"})", workspaceName, w.Address)
+	target := resolveWorkspaceTarget(workspaceName)
+	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"%s\", follow = true, window = \"address:%s\"})", target, w.Address)
 
 	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
+}
+
+// resolveWorkspaceTarget maps a user-supplied workspace name to the value that
+// should be passed as the `workspace` argument of a dispatch command.
+//
+// Under Hyprland 0.57 named workspaces are identified by their immutable
+// `address`, not by their (possibly renamed) display name. When a workspace
+// with the given name or address already exists we target it by address to
+// avoid creating duplicates. Otherwise we fall back to the `name:` form so a
+// new named workspace is created.
+func resolveWorkspaceTarget(name string) string {
+	for _, ws := range GetAllWorkspaces(true) {
+		if ws.Name == name || ws.Address == name {
+			return ws.Address
+		}
+	}
+
+	return "name:" + name
 }

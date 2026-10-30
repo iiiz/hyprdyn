@@ -21,11 +21,17 @@ type Workspace struct {
 }
 
 type WorkspaceType struct {
-	Id   int    `json:"id"`
-	Name string `json:"name"`
+	Id      int    `json:"id"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
 }
 
 type WorkspaceList []Workspace
+
+type Monitor struct {
+	Name            string        `json:"name"`
+	ActiveWorkspace  WorkspaceType `json:"activeWorkspace"`
+}
 
 var specialWorkspaceRegexp = regexp.MustCompile(`^special(:.*)?$`)
 var workspaceNameRegexp = regexp.MustCompile(`^[A-Za-z0-9 ._:@?\/-]{1,255}$`)
@@ -35,14 +41,14 @@ func ValidWorkspaceName(name string) bool {
 }
 
 func (ws Workspace) Rename(name string) {
-	arg := fmt.Sprintf("hl.dsp.workspace.rename({ workspace = \"%d\", name = \"%s\" })", ws.Id, name)
+	arg := fmt.Sprintf("hl.dsp.workspace.rename({ workspace = \"%s\", name = \"%s\" })", ws.Address, name)
 
 	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
 }
 
 func (ws Workspace) FocusOnCurrentMonitor() {
-	arg := fmt.Sprintf("hl.dsp.focus({ workspace = \"name:%s\", on_current_monitor = true }) ", ws.Name)
+	arg := fmt.Sprintf("hl.dsp.focus({ workspace = \"%s\", on_current_monitor = true }) ", ws.Address)
 
 	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
@@ -87,16 +93,27 @@ func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
 
 	activeWorkspace := GetActiveWorkspace()
 
+	monitorResp, err := hyprlandClient.sendCommand("monitors", nil)
+	Check(err)
+
+	monitors, err := UnmarshalHyprlandResponse[[]Monitor](monitorResp)
+	Check(err)
+
+	activeAddresses := make(map[string]bool)
+	for _, m := range monitors {
+		activeAddresses[m.ActiveWorkspace.Address] = true
+	}
+
 	var result []Workspace
 	for _, ws := range workspaces {
-		if ws.Id == activeWorkspace.Id {
+		if ws.Address == activeWorkspace.Address {
 			ws.Active = true
 		}
 
-		if ws.LastWindow == "0x0" && ws.Windows > 0 {
-			ws.Background = true
-		} else {
+		if activeAddresses[ws.Address] {
 			ws.Foreground = true
+		} else {
+			ws.Background = true
 		}
 
 		if omitSpecial {
