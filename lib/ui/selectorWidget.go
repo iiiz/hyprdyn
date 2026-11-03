@@ -11,8 +11,6 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const dismissGrace = 250 * time.Millisecond
-
 type SelectorWidget struct {
 	widget.Entry
 
@@ -117,12 +115,12 @@ func NewSelectorWidget(workspaceNames []string, autocompleteNames []string, OnSu
 		selector.TabCompleteListWidget.Refresh()
 
 		// Would love to have a proper list item height here but I can't find a const or a layout that's suitable in this framework for the use case.
-		OnResize((50 * float32(nextList.Len())) + selector.Entry.Size().Height)
+		OnResize((UIListResizeFactor * float32(nextList.Len())) + selector.Entry.Size().Height)
 	}
 
 	selector.ExtendBaseWidget(selector)
 
-	return selector, (48*float32(selector.completionList.Len()) + 42)
+	return selector, (UIListItemHeight*float32(selector.completionList.Len()) + UIRowHeight)
 }
 
 func (s *SelectorWidget) FocusGained() {

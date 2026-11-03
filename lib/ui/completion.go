@@ -31,7 +31,7 @@ func (item *CompletionItem) textReset() {
 	theme := UseTheme()
 	item.text.Color = theme.Text
 	item.text.TextStyle = fyne.TextStyle{}
-	item.text.TextSize = 14
+	item.text.TextSize = UITextSize
 }
 
 func (item *CompletionItem) GetStyledText() fyne.CanvasObject {
