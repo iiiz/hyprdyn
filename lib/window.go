@@ -13,29 +13,38 @@ const (
 )
 
 type Window struct {
-	Address          string          `json:"address"`
-	Mapped           bool            `json:"mapped"`
-	Hidden           bool            `json:"hidden"`
-	At               [2]int          `json:"at"`
-	Size             [2]int          `json:"size"`
-	Workspace        WorkspaceType   `json:"workspace"`
-	Floating         bool            `json:"floating"`
-	Pseudo           bool            `json:"pseudo"`
-	Monitor          int             `json:"monitor"`
-	Class            string          `json:"class"`
-	Title            string          `json:"title"`
-	InitialClass     string          `json:"initialClass"`
-	InitialTitle     string          `json:"initialTitle"`
-	Pid              int             `json:"pid"`
-	Xwayland         bool            `json:"xwayland"`
-	Pinned           bool            `json:"pinned"`
-	Fullscreen       FullscreenState `json:"fullscreen"`
-	FullscreenClient FullscreenState `json:"fullscreenClient"`
-	Grouped          []string        `json:"grouped"`
-	Tags             []string        `json:"tags"`
-	Swallowing       string          `json:"swallowing"`
-	FocusHistoryId   int             `json:"focusHistoryID"`
-	InhibitingIdle   bool            `json:"inhibitingIdle"`
+	Address               string          `json:"address"`
+	Mapped                bool            `json:"mapped"`
+	Hidden                bool            `json:"hidden"`
+	Visible               bool            `json:"visible"`
+	AcceptsInput          bool            `json:"acceptsInput"`
+	At                    [2]int          `json:"at"`
+	Size                  [2]int          `json:"size"`
+	Workspace             WorkspaceCore   `json:"workspace"`
+	Floating              bool            `json:"floating"`
+	Monitor               int             `json:"monitor"`
+	Class                 string          `json:"class"`
+	Title                 string          `json:"title"`
+	InitialClass          string          `json:"initialClass"`
+	InitialTitle          string          `json:"initialTitle"`
+	Pid                   int             `json:"pid"`
+	Xwayland              bool            `json:"xwayland"`
+	Pinned                bool            `json:"pinned"`
+	PinFullscreened       bool            `json:"pinFullscreened"`
+	Fullscreen            FullscreenState `json:"fullscreen"`
+	FullscreenClient      FullscreenState `json:"fullscreenClient"`
+	FullscreenHandler     string          `json:"fullscreenHandler"`
+	AllowedOverFullscreen bool            `json:"allowedOverFullscreen"`
+	Grouped               []string        `json:"grouped"`
+	Tags                  []string        `json:"tags"`
+	Swallowing            string          `json:"swallowing"`
+	FocusHistoryId        int             `json:"focusHistoryID"`
+	InhibitingIdle        bool            `json:"inhibitingIdle"`
+	XdgTag                string          `json:"xdgTag"`
+	XdgDescription        string          `json:"xdgDescription"`
+	ContentType           string          `json:"contentType"`
+	TearingHint           bool            `json:"tearingHint"`
+	StableId              string          `json:"stableId"`
 }
 
 // GetActiveWindow queries the Hyprland socket for the currently active window
