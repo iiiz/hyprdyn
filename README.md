@@ -10,6 +10,7 @@ Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by X
 - Swap to workspaces by name.
 - Rename workspaces.
 - Send a window to a workspace by name. (shift-[enter/return] to follow window.)
+- Switch the tiled layout of a workspace. (config req.)
 - Auto-completion with tab selection. (shift-tab reverse)
 - Switch to or spawn primary workspace. (config req.)
 - Per monitor default workspaces (config req.)
@@ -20,6 +21,10 @@ Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by X
 
 ```bash
 Usage of hyprdyn:
+  -layout
+     Set workspace layout.
+  -layout-toggle
+     Toggle the tiled layout of the active workspace.
   -primary
      Go to, or spawn your primary workspace. See config:primaryName
   -rename
@@ -47,6 +52,10 @@ hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd("hyprdyn --primary"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprdyn --send"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd("hyprdyn --select"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("hyprdyn --rename"))
+
+-- Layout switching
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprdyn --layout"))
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprdyn --layout-toggle"))
 
 -- Window position center
 hl.window_rule({
@@ -84,6 +93,7 @@ Note: If `theme` is present it will override any `customTheme` defined.
   ],
   "autoComplete": ["dev", "term", "browser", "development", "news", "personal"],
   "theme": "default",
+  "layouts": ["dwindle", "scrolling"],
   "customTheme": {
     "background": "#272822",
     "inputBackground": "#1E1F1C",
@@ -106,6 +116,9 @@ Note: If `theme` is present it will override any `customTheme` defined.
 - `theme`: Built in themes by name. Overrides `customTheme` if defined.
   - One of: (default emerald cyber nordly ruby snow darksky ocean)
 - `customTheme`: Theme each component of the ui with hex colors. Must be in the format `#FFFFFF`.
+- `layouts`: Ordered list of tiled layouts to cycle through with `--layout` / `--layout-toggle`. Requires at least 2 entries.
+  - Example: `["dwindle", "scrolling", "monocle"]`
+  - Layout names must be valid for your Hyprland build (`hyprctl` / Hyprland config).
 
 #### Building Hyprdyn
 

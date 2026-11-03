@@ -9,32 +9,46 @@ import (
 type RuntimeFlags struct {
 	IsUiMode bool
 
-	// setup mode
-	SetupMode *bool
+	// INFO: Non-Interactive commands
+	SetupCmd        *bool
+	PrimaryCmd      *bool
+	ToggleLayoutCmd *bool
 
-	// normal modes
+	// INFO: GUI modes
 	SelectMode *bool
 	SendMode   *bool
 	RenameMode *bool
-	PrimaryCmd *bool
+	LayoutMode *bool
 }
 
 func CaptureFlags() RuntimeFlags {
 	var flags RuntimeFlags
 
-	flags.SetupMode = flag.Bool("setup", false, "Set configured monitors default workspace names. Useful on startup ie. ('exec-once')")
+	flags.SetupCmd = flag.Bool("setup", false, "Set configured monitors default workspace names. Useful on startup ie. ('exec-once')")
+	flags.PrimaryCmd = flag.Bool("primary", false, "Go to, or spawn your primary workspace. See config:primaryName")
+	flags.ToggleLayoutCmd = flag.Bool("layout-toggle", false, "Toggle the tiled layout of the active workspace.")
+
 	flags.SelectMode = flag.Bool("select", false, "Select or create a workspace on current monitor.")
 	flags.SendMode = flag.Bool("send", false, "Send the current window to a workspace.")
 	flags.RenameMode = flag.Bool("rename", false, "Rename a workspace.")
-	flags.PrimaryCmd = flag.Bool("primary", false, "Go to, or spawn your primary workspace. See config:primaryName")
+	flags.LayoutMode = flag.Bool("layout", false, "Set workspace layout.")
 
 	flag.Parse()
 
 	flagCount := 0
 
-	if *flags.SetupMode == true {
+	// INFO: Non-Interactive commands
+	if *flags.SetupCmd == true {
 		flagCount++
 	}
+	if *flags.PrimaryCmd == true {
+		flagCount++
+	}
+	if *flags.ToggleLayoutCmd == true {
+		flagCount++
+	}
+
+	// INFO: GUI modes
 	if *flags.SelectMode == true {
 		flagCount++
 	}
@@ -44,7 +58,7 @@ func CaptureFlags() RuntimeFlags {
 	if *flags.RenameMode == true {
 		flagCount++
 	}
-	if *flags.PrimaryCmd == true {
+	if *flags.LayoutMode == true {
 		flagCount++
 	}
 
@@ -54,7 +68,7 @@ func CaptureFlags() RuntimeFlags {
 	}
 
 	// if we have a flag assume ui mode
-	if flagCount == 1 && (*flags.SetupMode != true && *flags.PrimaryCmd != true) {
+	if flagCount == 1 && (*flags.SetupCmd != true && *flags.PrimaryCmd != true && *flags.ToggleLayoutCmd != true) {
 		flags.IsUiMode = true
 	}
 

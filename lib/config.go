@@ -22,6 +22,7 @@ type Config struct {
 	PrimaryName  *string                  `validate:"omitempty,min=1,max=255" json:"primaryName,omitempty"`
 	Theme        *string                  `validate:"omitempty,oneof=default emerald cyber nordly ruby snow darksky ocean" json:"theme,omitempty"`
 	CustomTheme  *ht.HyprdynHexcolorTheme `validate:"omitempty" json:"customTheme,omitempty"`
+	Layouts      []string                 `validate:"omitempty,min=2" json:"layouts,omitempty"`
 }
 
 func ReadConfig() *Config {
