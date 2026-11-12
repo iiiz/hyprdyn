@@ -6,24 +6,27 @@ import (
 )
 
 type Workspace struct {
-	WorkspaceType
+	WorkspaceCore
 	Monitor         string `json:"monitor"`
 	MonitorID       int    `json:"monitorID"`
 	Windows         int    `json:"windows"`
 	HasFullScreen   bool   `json:"hasfullscreen"`
 	LastWindow      string `json:"lastwindow"`
 	LastWindowTitle string `json:"lastwindowtitle"`
+	IsPersistent    bool   `json:"ispersistent"`
+	TiledLayout     string `json:"tiledLayout"`
 
-	// hyprdyn attributes
+	// INFO: hyprdyn specific attributes
 	Active     bool
 	Foreground bool
 	Background bool
 }
 
-type WorkspaceType struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
+type WorkspaceCore struct {
+	Id      int    `json:"id"` // REF: remove me? Looks like this is going to be deprecated at some point.
 	Address string `json:"address"`
+	Type    string `json:"type"`
+	Name    string `json:"name"`
 }
 
 type WorkspaceList []Workspace
@@ -49,14 +52,21 @@ func (ws Workspace) FocusOnCurrentMonitor() {
 	Check(err)
 }
 
-func (wss WorkspaceList) FindByName(name string) (ws Workspace, found bool) {
+func (ws Workspace) SetLayout(layout string) {
+	arg := fmt.Sprintf("hl.workspace_rule({ workspace = \"%s\", layout = \"%s\" })", ws.Address, layout)
+
+	_, err := hyprlandClient.sendCommand("eval", &arg)
+	Check(err)
+}
+
+func (wss WorkspaceList) FindByName(name string) *Workspace {
 	for _, ws := range wss {
 		if ws.Name == name {
-			return ws, true
+			return &ws
 		}
 	}
 
-	return Workspace{}, false
+	return nil
 }
 
 func (wss WorkspaceList) GetForegroundByMonitor(monitor string) *Workspace {

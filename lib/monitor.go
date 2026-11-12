@@ -1,8 +1,9 @@
 package hyprdyn
 
+// NOTE: Minimal attribute coverage.
 type Monitor struct {
 	Name            string        `json:"name"`
-	ActiveWorkspace WorkspaceType `json:"activeWorkspace"`
+	ActiveWorkspace WorkspaceCore `json:"activeWorkspace"`
 }
 
 func GetMonitors() []Monitor {

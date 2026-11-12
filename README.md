@@ -13,6 +13,8 @@ Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by X
 - Auto-completion with tab selection. (shift-tab reverse)
 - Switch to or spawn primary workspace. (config req.)
 - Per monitor default workspaces (config req.)
+- Toggle the tiled layout of a workspace. (dwindle, scrolling, etc. config req.)
+- Configurable layouts per workspace name and when to apply mapped layouts. (on setup, new workspace, workspace renamed)
 - Auto-close on focus loss to stay out of the way.
 - Theme configuration. (pre-defined or custom theming)
 
@@ -20,6 +22,10 @@ Hyprdyn is a dynamic named workspace utility for Hyprland, loosely inspired by X
 
 ```bash
 Usage of hyprdyn:
+  -layout
+     Set workspace layout.
+  -layout-toggle
+     Toggle the tiled layout of the active workspace.
   -primary
      Go to, or spawn your primary workspace. See config:primaryName
   -rename
@@ -31,6 +37,8 @@ Usage of hyprdyn:
   -setup
      Set configured monitors default workspace names. Useful on startup ie. ('exec-once')
 ```
+
+Note: Flags may be prepended by `-` or `--`
 
 #### Example Hyprland Config
 
@@ -47,6 +55,10 @@ hl.bind(mainMod .. " + SHIFT + H", hl.dsp.exec_cmd("hyprdyn --primary"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd("hyprdyn --send"))
 hl.bind(mainMod .. " + S", hl.dsp.exec_cmd("hyprdyn --select"))
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("hyprdyn --rename"))
+
+-- Layout switching
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd("hyprdyn --layout"))
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("hyprdyn --layout-toggle"))
 
 -- Window position center
 hl.window_rule({
@@ -84,6 +96,20 @@ Note: If `theme` is present it will override any `customTheme` defined.
   ],
   "autoComplete": ["dev", "term", "browser", "development", "news", "personal"],
   "theme": "default",
+  "layout": {
+    "quickToggleOptions": ["dwindle", "scrolling", "monocle"],
+    "workspaceMapping": [
+      {
+        "workspace": "browser",
+        "layout": "scrolling"
+      }
+    ],
+    "useLayoutSetting": {
+      "setup": true,
+      "spawn": true,
+      "rename": false
+    }
+  },
   "customTheme": {
     "background": "#272822",
     "inputBackground": "#1E1F1C",
@@ -106,6 +132,13 @@ Note: If `theme` is present it will override any `customTheme` defined.
 - `theme`: Built in themes by name. Overrides `customTheme` if defined.
   - One of: (default emerald cyber nordly ruby snow darksky ocean)
 - `customTheme`: Theme each component of the ui with hex colors. Must be in the format `#FFFFFF`.
+- `layout`: Layout configuration object. All fields are optional.
+  - `quickToggleOptions`: Ordered list of tiled layouts to cycle through with `-layout` / `-layout-toggle`. Requires at least 2 entries when present.
+    - Example: `["dwindle", "scrolling", "monocle", "<custom layout name>"]`
+  - `workspaceMapping`: List of `{ "workspace": "<name>", "layout": "<layout>" }` entries. When a workspace is created/renamed to a mapped name, its tiled layout is set automatically (subject to `useLayoutSetting`).
+  - `useLayoutSetting`: Controls whether layout mapping is applied during the setup, spawn (`-select` `-send` `-primary` where a new workspace is created), and rename flows.
+    - Object with boolean `setup`, `spawn`, and `rename` fields (default `true` when omitted).
+  - Layout names must be valid for your Hyprland build (`hyprctl` / Hyprland config).
 
 #### Building Hyprdyn
 
