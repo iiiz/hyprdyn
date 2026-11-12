@@ -15,6 +15,12 @@ func SetupCommand() {
 
 			if ws != nil && monitorConfig.DefaultName != nil {
 				ws.Rename(*monitorConfig.DefaultName)
+
+				if config.LayoutConfig != nil && config.LayoutConfig.UseLayoutSetting.SetupEnabled() {
+					if layoutName := config.GetMappedLayoutName(*monitorConfig.DefaultName); layoutName != nil {
+						ws.SetLayout(*layoutName)
+					}
+				}
 			}
 		}
 
@@ -26,12 +32,19 @@ func SetupCommand() {
 
 func PrimaryCommand() {
 	if config != nil && config.PrimaryName != nil {
-		existing, found := workspaces.FindByName(*config.PrimaryName)
+		existing := workspaces.FindByName(*config.PrimaryName)
 
-		if found {
+		if existing != nil {
 			existing.FocusOnCurrentMonitor()
 		} else {
 			hd.SpawnWorkspace(*config.PrimaryName)
+			active := hd.GetActiveWorkspace()
+
+			if config.LayoutConfig != nil && config.LayoutConfig.UseLayoutSetting.SpawnEnabled() {
+				if layoutName := config.GetMappedLayoutName(*config.PrimaryName); layoutName != nil {
+					active.SetLayout(*layoutName)
+				}
+			}
 		}
 
 		os.Exit(0)
@@ -42,21 +55,25 @@ func PrimaryCommand() {
 }
 
 func ToggleLayoutCommand() {
-	if config != nil && len(config.Layouts) > 0 {
-		activeWs := hd.GetActiveWorkspace()
-		nextIndex := 0
+	if config != nil && config.LayoutConfig != nil {
+		quickToggleLen := len(config.LayoutConfig.QuickToggleOptions)
 
-		for i, l := range config.Layouts {
-			if l == activeWs.TiledLayout {
-				nextIndex = (i + 1) % len(config.Layouts)
-				break
+		if quickToggleLen > 0 {
+			activeWs := hd.GetActiveWorkspace()
+			nextIndex := 0
+
+			for i, l := range config.LayoutConfig.QuickToggleOptions {
+				if l == activeWs.TiledLayout {
+					nextIndex = (i + 1) % quickToggleLen
+					break
+				}
 			}
+
+			activeWs.SetLayout(config.LayoutConfig.QuickToggleOptions[nextIndex])
+			os.Exit(0)
+
+		} else {
+			log.Fatal("Hyprdyn: No config or configured layouts present.")
 		}
-
-		activeWs.SetLayout(config.Layouts[nextIndex])
-		os.Exit(0)
-
-	} else {
-		log.Fatal("Hyprdyn: No config or configured layouts present.")
 	}
 }

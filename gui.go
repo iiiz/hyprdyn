@@ -47,36 +47,42 @@ func spawnGui() {
 }
 
 func LayoutUi(window fyne.Window) {
-	if config != nil && config.Layouts != nil {
-		activeWs := hd.GetActiveWorkspace()
+	if config != nil && config.LayoutConfig != nil {
+		quickToggleLen := len(config.LayoutConfig.QuickToggleOptions)
 
-		ll := make(ui.LayoutList, len(config.Layouts))
+		if quickToggleLen > 0 {
+			activeWs := hd.GetActiveWorkspace()
 
-		for i, l := range config.Layouts {
-			ll[i] = &ui.Layout{Label: l}
+			ll := make(ui.LayoutList, quickToggleLen)
 
-			if l == activeWs.TiledLayout {
-				ll[i].Active = true
-				ll[i].Highlight = true
+			for i, l := range config.LayoutConfig.QuickToggleOptions {
+				ll[i] = &ui.Layout{Label: l}
+
+				if l == activeWs.TiledLayout {
+					ll[i].Active = true
+					ll[i].Highlight = true
+				}
 			}
+
+			var onDismiss = func() {
+				os.Exit(0)
+			}
+
+			var onSubmit = func(layout string) {
+				activeWs.SetLayout(layout)
+				os.Exit(0)
+			}
+
+			lw := ui.NewLayoutWidget(ll, onSubmit, onDismiss)
+
+			window.Resize(fyne.NewSize(ui.UIWindowWidth, (ui.UIListItemHeight * float32(quickToggleLen))))
+			window.SetContent(container.NewStack(lw))
+			window.Canvas().Focus(lw)
+		} else {
+			log.Fatal("Hyprdyn: No quickToggleOptions present in config.")
 		}
-
-		var onDismiss = func() {
-			os.Exit(0)
-		}
-
-		var onSubmit = func(layout string) {
-			activeWs.SetLayout(layout)
-			os.Exit(0)
-		}
-
-		lw := ui.NewLayoutWidget(ll, onSubmit, onDismiss)
-
-		window.Resize(fyne.NewSize(ui.UIWindowWidth, (ui.UIListItemHeight * float32(len(config.Layouts)))))
-		window.SetContent(container.NewStack(lw))
-		window.Canvas().Focus(lw)
 	} else {
-		log.Fatal("Hyprdyn: No config or configured layouts present.")
+		log.Fatal("Hyprdyn: No config or configured layout settings present.")
 	}
 }
 
@@ -86,12 +92,16 @@ func RenameUi(window fyne.Window) {
 			return
 		}
 
-		_, found := workspaces.FindByName(input)
-
-		if !found {
+		if workspaces.FindByName(input) == nil {
 			active := hd.GetActiveWorkspace()
 
 			active.Rename(input)
+
+			if config != nil && config.LayoutConfig != nil && config.LayoutConfig.UseLayoutSetting.RenameEnabled() {
+				if layoutName := config.GetMappedLayoutName(input); layoutName != nil {
+					active.SetLayout(*layoutName)
+				}
+			}
 		}
 
 		os.Exit(0)
@@ -121,19 +131,45 @@ func SelectUi(window fyne.Window) {
 			return
 		}
 
+		var useLayoutSetting = config != nil && config.LayoutConfig != nil && config.LayoutConfig.UseLayoutSetting.SpawnEnabled()
+		var layoutTarget *hd.Workspace
+		existing := workspaces.FindByName(input)
+
 		if *flags.SendMode == true {
 			if follow {
-				activeWindow.MoveToWorkspace(input)
+				activeWindow.MoveToWorkspace(existing, input)
+
+				if useLayoutSetting && existing == nil {
+					active := hd.GetActiveWorkspace()
+					layoutTarget = &active
+				}
 			} else {
-				activeWindow.MoveToWorkspaceSilent(input)
+				activeWindow.MoveToWorkspaceSilent(existing, input)
+
+				if useLayoutSetting && existing == nil {
+					layoutTarget = hd.GetAllWorkspaces(true).FindByName(input)
+
+					if layoutTarget == nil {
+						log.Warn("Hyprdyn: Workspace not ready, layout configuration may not be respected.")
+					}
+				}
 			}
 		} else {
-			existing, found := workspaces.FindByName(input)
-
-			if found {
+			if existing != nil {
 				existing.FocusOnCurrentMonitor()
 			} else {
 				hd.SpawnWorkspace(input)
+
+				if useLayoutSetting {
+					active := hd.GetActiveWorkspace()
+					layoutTarget = &active
+				}
+			}
+		}
+
+		if useLayoutSetting && existing == nil && layoutTarget != nil {
+			if layoutName := config.GetMappedLayoutName(input); layoutName != nil {
+				layoutTarget.SetLayout(*layoutName)
 			}
 		}
 

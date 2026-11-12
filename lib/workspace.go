@@ -59,14 +59,14 @@ func (ws Workspace) SetLayout(layout string) {
 	Check(err)
 }
 
-func (wss WorkspaceList) FindByName(name string) (ws Workspace, found bool) {
+func (wss WorkspaceList) FindByName(name string) *Workspace {
 	for _, ws := range wss {
 		if ws.Name == name {
-			return ws, true
+			return &ws
 		}
 	}
 
-	return Workspace{}, false
+	return nil
 }
 
 func (wss WorkspaceList) GetForegroundByMonitor(monitor string) *Workspace {
