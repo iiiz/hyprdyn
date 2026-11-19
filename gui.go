@@ -137,14 +137,14 @@ func SelectUi(window fyne.Window) {
 
 		if *flags.SendMode == true {
 			if follow {
-				activeWindow.MoveToWorkspace(existing, input)
+				activeWindow.MoveToWorkspace(existing, input, false)
 
 				if useLayoutSetting && existing == nil {
 					active := hd.GetActiveWorkspace()
 					layoutTarget = &active
 				}
 			} else {
-				activeWindow.MoveToWorkspaceSilent(existing, input)
+				activeWindow.MoveToWorkspace(existing, input, true)
 
 				if useLayoutSetting && existing == nil {
 					layoutTarget = hd.GetAllWorkspaces(true).FindByName(input)
