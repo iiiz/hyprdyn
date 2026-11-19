@@ -1,6 +1,8 @@
 package hyprdyn
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"regexp"
 )
@@ -81,10 +83,31 @@ func (wss WorkspaceList) GetForegroundByMonitor(monitor string) *Workspace {
 
 // NOTE: potential foot-gun here unless name is checked for collision prior to calling.
 func SpawnWorkspace(name string) {
-	arg := fmt.Sprintf("hl.dsp.focus({ workspace = \"name:%s\", on_current_monitor = true }) ", name)
+	workspaces := GetAllWorkspaces(true)
+	if existing := workspaces.FindByName(name); existing != nil {
+		existing.FocusOnCurrentMonitor()
+		return
+	}
 
-	_, err := hyprlandClient.sendCommand("dispatch", &arg)
+	address := newWorkspaceAddress()
+
+	focusArg := fmt.Sprintf("hl.dsp.focus({ workspace = \"name:%s\", on_current_monitor = true })", address)
+	_, err := hyprlandClient.sendCommand("dispatch", &focusArg)
 	Check(err)
+
+	renameArg := fmt.Sprintf("hl.dsp.workspace.rename({ workspace = \"%s\", name = \"%s\" })", address, name)
+	_, err = hyprlandClient.sendCommand("dispatch", &renameArg)
+	Check(err)
+}
+
+// newWorkspaceAddress returns a short, unique, workspace-safe address.
+func newWorkspaceAddress() string {
+	buf := make([]byte, 8)
+	if _, err := rand.Read(buf); err != nil {
+		Check(err)
+	}
+
+	return "hd-" + hex.EncodeToString(buf)
 }
 
 func GetAllWorkspaces(omitSpecial bool) WorkspaceList {
