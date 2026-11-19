@@ -61,36 +61,44 @@ func GetActiveWindow() Window {
 	return window
 }
 
-// MoveToWorkspaceSilent moves the window to the named workspace without
-// switching the active view, sending a dispatch command to the Hyprland socket.
-func (w Window) MoveToWorkspaceSilent(target *Workspace, targetName string) {
+// MoveToWorkspace moves the window to the named workspace. When silent is true
+// the active view is not switched; otherwise Hyprland follows the move.
+func (w Window) MoveToWorkspace(target *Workspace, targetName string, silent bool) {
 	var workspaceAddress string
+	created := false
 
 	if target != nil {
 		workspaceAddress = target.Address
 	} else {
-		workspaceAddress = "name:" + targetName
+		if existing := GetAllWorkspaces(true).FindByName(targetName); existing != nil {
+			workspaceAddress = existing.Address
+		} else {
+			workspaceAddress = newWorkspaceAddress()
+			created = true
+		}
 	}
 
-	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"%s\", follow = false, window = \"address:%s\"})", workspaceAddress, w.Address)
-
-	_, err := hyprlandClient.sendCommand("dispatch", &arg)
-	Check(err)
-}
-
-// MoveToWorkspace moves the window to the named workspace and switches the
-// active view to follow it, sending a dispatch command to the Hyprland socket.
-func (w Window) MoveToWorkspace(target *Workspace, targetName string) {
-	var workspaceAddress string
-
-	if target != nil {
-		workspaceAddress = target.Address
-	} else {
-		workspaceAddress = "name:" + targetName
+	follow := "true"
+	if silent {
+		follow = "false"
 	}
 
-	arg := fmt.Sprintf("hl.dsp.window.move({ workspace = \"%s\", follow = true, window = \"address:%s\"})", workspaceAddress, w.Address)
-
+	arg := fmt.Sprintf(
+		"hl.dsp.window.move({ workspace = \"%s\", follow = %s, window = \"address:%s\" })",
+		workspaceAddress,
+		follow,
+		w.Address,
+	)
 	_, err := hyprlandClient.sendCommand("dispatch", &arg)
 	Check(err)
+
+	if created {
+		renameArg := fmt.Sprintf(
+			"hl.dsp.workspace.rename({ workspace = \"%s\", name = \"%s\" })",
+			workspaceAddress,
+			targetName,
+		)
+		_, err := hyprlandClient.sendCommand("dispatch", &renameArg)
+		Check(err)
+	}
 }
