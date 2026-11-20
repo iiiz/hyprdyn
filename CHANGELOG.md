@@ -4,6 +4,23 @@ All changes to Hyprdyn will be represented here.
 
 ---
 
+## [3.1.0](https://github.com/iiiz/hyprdyn/compare/3.0.0...3.1.0) (2026-11-20)
+
+### Features
+
+  - ([77ffbe3](https://github.com/iiiz/hyprdyn/commit/77ffbe30e4232e56bd60b686f3a73c8b5b5cae2e)) feat: per-workspace name layout configuration
+  - ([73516bf](https://github.com/iiiz/hyprdyn/commit/73516bf16112e9828f315ea1762c171679bfeafb)) feat: workspace layout selection and toggle.
+
+### Bug Fixes
+
+  - ([8e60cb9](https://github.com/iiiz/hyprdyn/commit/8e60cb9d8317dea39e9ef647241b3ab23544ea09)) fix: prevent workspace name/address collisions on spawn
+
+### Misc
+
+  - ([412910d](https://github.com/iiiz/hyprdyn/commit/412910d95abd8e41463bb56496b725efb2337fdf)) refactor: unify window moves with unique workspace addresses
+  - ([7624e28](https://github.com/iiiz/hyprdyn/commit/7624e28f7280af35efc0216f6849162722880fe9)) tech: Set wayland build tag by default.
+
+
 ## [3.0.0](https://github.com/iiiz/hyprdyn/compare/2.0.1...3.0.0) (2026-10-30)
 
 ### Bug Fixes
